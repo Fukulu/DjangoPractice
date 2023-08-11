@@ -1,0 +1,1139 @@
+-Açıklamalarda Aşamalar Rakamlarla Belirtilmiştir.
+-Kodlama içermeyen içeriklerinin tamamı # ile başlamaktadır.
+-Projemizin adı Learning Log
+-Python Crash Course - Eric Matthes'e Teşekkürlerimi sunuyorum.
+
+--------------------------------------------------------------------------------------------------
+-ÖNEMLİ NOT: Projemizin son safhasında Bootstrap kütüphanesini kullanarak görsel olarak çok daha
+    iyi tasarıma sahip bir versiyonunu geliştiriyoruz. Bu yüzden başlangıç aşamalarındaki;
+            "base.html",
+            "index.html"
+            "login.html"
+            "topics.html"
+            "topic.html" html sayfaların kodlamaları "HTML Comment Line" olarak çevrilmiştir.
+    Fakat python'ın tekrar eden kod satırı olarak algılamaması adına;
+        {% block content %}
+        {% endblock content %}
+        {% extends 'learning_logs/base.html' %}
+    eski html uzantılı sayfa tasatımlarımızda "%" işaretleri çıkarılmıştır.
+    Bu yüzden başlangıç aşamalar için kopyala yapıştırdansa aşamalar açıklamasında yer alan kodların
+    kullanılması daha doğru olacaktır.
+--------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------
+                                    DJANGO PROJE KURULUMU
+--------------------------------------------------------------------------------------------------
+    # 1) Öncelikle Django kurulumunu yaparken diğer kütüphane içeriklerinden projeyi sadeleştirmek
+adına yeni python enviroment oluşturuyoruz:
+    # Terminali açıp komutu giriyoruz:
+
+     python -m venv ll_env
+--------------------------------------------------------------------------------------------------
+    # 2) Bu komut çalıştırıldında "ll_env" adında klasörde yeni virtual_enviroment'ımız oluşturuluyor
+fakat oluşturulan bu yeni virtual_enviroment aktif hale getirilmeli:
+    # NOT: Terminal Prompt içerisinde artık (ll_env) gözüktüğünde ll_env aktif hale gelmiştir.
+    # Terminali açıp komutu giriyoruz:
+
+    source ll_env/bin/activate
+
+-----------------------------                                   ----------------------------------
+
+    # 2.1) Oluşturulan yeni ll_env terminal kapatıldığında deaktif olacaktır yada terminal üzerinden
+girilecek kod ile deaktif hale getirilebilir:
+    # Terminali açıp komutu giriyoruz:
+
+    deactivate
+
+--------------------------------------------------------------------------------------------------
+    # 3) ll_env aktif hale getirildikten sonra Django'yu artık projemize dahil edebiliriz. Öncelikle
+terminal üzerinden pip güncellemesi yapılıp ardından Django yüklemesini gerçekleştirebiliriz:
+    # Terminali açıp komutu giriyoruz:
+
+    pip install --upgrade pip
+    pip install django
+--------------------------------------------------------------------------------------------------
+    # 4) Sırada Django'ya yeni proje başlatma komutunu vereceğiz. Bu komutun sonundaki "." ya dikkat
+edilmesi gerekiyor. Bu sayede ll_env klasörü ile aynı hiyerarşide bu klasörü oluşturmamız gerekiyor. Aksi
+bir durumda oluşturulan klasörü tamamiyle silerek yeniden komut girilerek klasör tekrardan oluşturulabilir.
+    # Terminali açıp komutu giriyoruz:
+
+    django-admin startproject ll_project .
+    ls                                          # -> Bu komut ile dizindeki dosyaları görüntülüyoruz.
+                                                # Çıktı olarak: ll_env, ll_project, manage.py
+    ls ll_project                               # -> Bu komut ile ll_project klasöründeki dosyalar listelenir
+                                                # Çıktı olarak: __init__.py, asgi.py, settings.py, urls.py, wsgi.py
+
+-----------------------------                                   ----------------------------------
+
+    # 4.1) settings.py  : Dosyası projemizin ayarlarını içerir
+           urls.py      : Dosyası browserda hangi sayfanın cevap vereceğini belirler.
+           wsgi.py      : Web sunucu ile Django dosyalarında ağ geçidi arayüzüdür.
+
+--------------------------------------------------------------------------------------------------
+    # 5) Django projedeki dataların çoğunu database içerisinde tutar bu yüzden bu adımda database
+oluşturacağız.(Django otomatik olarak veritabanını "sqlite3" formatında oluşturacaktır.)
+    # Terminali açıp komutu giriyoruz:
+
+    python manage.py migrate
+    ls                                          # -> Bu komut ile dizinimizi kontrol ediyoruz
+                                                # Çıktı olarak: db.sqlite3, ll_env, ll_project, manage.py
+--------------------------------------------------------------------------------------------------
+    # 6) Sırada runserver komutu ile Django projemizi çalıştırabiliriz. Bu komut ile lokalsunucu üzerinde
+URL adresi oluşturulacak ve bu adreste projemizi görüntüleyebileceğiz.
+    # Terminali açıp komutu giriyoruz:
+
+    python manage.py runserver
+
+-----------------------------                                   ----------------------------------
+
+    # 6.1) Eğer http://127.0.0.1:8000/ portu kullanımda hatası alırsak http://127.0.0.1:8001/ olarak
+portu değiştirmemiz gerekebilir.
+    # 6.2) Terminal üzerinden kntrl + C ile server'ı  istediğimiz zaman kapatabiliriz.
+    # 6.3) 7. adıma geçmeden önce kntrl + C ile server'ı kapatmalıyız...
+
+--------------------------------------------------------------------------------------------------
+    # 7) Bu aşamada, DJANGO'nun projemizin altyapı dosyalarını içerecek klasörü oluşturması için
+terminalden gerekli komutu gireceğiz.Yine ls komutunu kullanarak "learning_logs" adını verdiğimiz
+altyapı dosyalarını ve içeriğini görüntüleyebilirsiniz.
+    # Terminali açıp komutu giriyoruz:
+
+    python manage.py startapp learning_logs
+
+-----------------------------                                   ----------------------------------
+
+    # 7.1) models.py    : Dosyası projemizdeki verileri tanımlayacağımız alandır.
+           admin.py     : Yönetici arayüzü yapılandırmalarını içerir.
+           views.py     : Kullanıcıların tarayıcıdaki görüntülediği view'ları içerir.
+
+--------------------------------------------------------------------------------------------------
+    # 8) Bu projede kullanıcının oluşturacağı bir "TOPIC", topic'e ait detayları içeren "ENTRY",
+ayrıca bu değerlerin oluşturulma zamanını içeren "TIMESTAMP" değerleri yer alacaktır. Class'ı
+oluştururken django.db den models yapısını çağırarak miras alıyor ve Topic Sınıfı içerisinde
+text ve date_added'ı ekliyoruz.
+
+    # 8.1) learning_logs klasöründeki models.py dosyasına gidelim ve "TOPIC" adında bir class
+tanımlayalım:
+
+    # learning_logs/models.py açıp kodu yazınız:
+
+    from django.db import models
+
+    class Topic(models.Model):
+      """Kullanıcının öğreneceği Topic değeri"""
+      text = models.CharField(max_length=200)                   #-> CharField küçük miktar text almak için.
+      date_added = models.DateTimeField(auto_now_add=True)      #-> auto_now_add komutu ile oto tarih giriliyor
+
+
+        def __str__(self):
+            """ Topic Modelinin rahat okunabilmesi için string metodu tanımlıyoruz"""
+            return self.text
+--------------------------------------------------------------------------------------------------
+    # 9) Bu adımda oluşturduğumuz modeli aktif hale getirebilmek için ll_project/settings.py dosyasında
+INSTALLED_APPS listesine 'learning_logs' projemizi ekliyoruz.
+    # ll_project/settings.py açıp kodu yazınız:
+
+        INSTALLED_APPS = [
+    "learning_logs",    # Buraya learning_logs ekleyerek modelimizi aktif hale getirdik.
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+     ]
+
+-----------------------------                                   ----------------------------------
+
+    # 9.1) Ardından makemigration komutu ile Django'ya yeni oluşturduğumuz Topic modelini database'e
+işlemesini söylüyoruz.
+    # Terminali açıp komutu giriyoruz:
+
+    python manage.py makemigrations learning_logs
+
+-----------------------------                                   ----------------------------------
+
+    # 9.2) Çıktı olarak "0001_initial.py" dosyasını oluşturduk ve bu dosya veritabanındaki Topic Tablosuna
+karşılık geliyor. Bu dosyayının aktarımı onaylamak için Terminale yeni komutumuzu yazmalıyız.
+    # Terminali açıp komutu giriyoruz:
+
+    python manage.py migrate
+
+    # NOT: Her yeni model tanımlandığında bu 3 aşama sırasıyla tekrarlanıp modeller uygulama içerisinde
+tanımlanmalıdır. 1.Modeli tanımla, 2.makemigrations, 3.migrate
+
+--------------------------------------------------------------------------------------------------
+    # 10) Bu aşamada Admin kullanıcısı tanımlayacağız. Admin site üzerinde bütün verileri okuma ve yazma
+yetkisine sahip olacaktır. Bu super kullanıcıyı oluşturmak için createsuperuser komutunu kullanacağız.
+    # Terminali açıp komutu giriniz:
+
+    python manage.py createsuperuser
+
+    # Örnek olarak superuser tanımlaması...
+    # -> Username       : ll_admin
+    # -> Email address  : ll_admin@admin.com
+    # -> Password       : 123456
+    # -> Password(again): 123456
+--------------------------------------------------------------------------------------------------
+    # 11) Django admin içerisinde User ve Group olarak iki adet model içerir. Fakat bizim kullanacağımız
+modelleri admin içerisine kendimiz manuel olarak eklemeliyiz.
+
+    # learning_logs/admin.py dosyasını açıyoruz:
+
+    from django.contrib import admin                # -> Önce djangodan admin yapısını çekiyoruz
+    from .models import Topic                       # -> models.py dosyamızdan Topic class'ı çekiyoruz
+
+    admin.site.register(Topic)                      # -> Topic'i bu kod ile admin modeline ekliyoruz
+--------------------------------------------------------------------------------------------------
+
+    # 12) Terminalde "python manage.py runserver" komutunu çalıştırdıktan sonra oluşan http linkinden;
+http://localhost:8000/admin/ sayfasına gidip oluşturduğumuz superuser sayfasına erişiyoruz. Gelen say-
+fada belirlediğimiz username ve password'ü girdikten sonra direkt olarak Yönetim sayfasına bağlanıyoruz.
+Üst kısımda Django ile otomatik gelen USER ve GROUP yapısı bulunurken alt kısımda bizim oluşturduğumuz
+LEARNING_LOGS projemizin TOPICS modeli yer alıyor.
+
+-----------------------------                                   ----------------------------------
+
+    # 12.1) "Topics" sekmesine tıkladıktan sonra "ADD TOPIC" butonu ile ilk Topic'imizi ekleyebiliriz.
+İlk topic örneği olarak "Chess" diyebilir. Ardından da tekrar bir topic eklemek için "Rock Climbing"
+etkinliğini listemize ekleyebiliriz. Dilersek topicleri buradan direkt olarak silebiliriz.
+
+--------------------------------------------------------------------------------------------------
+    # 13) Projemizde Öğrenmek istediğimiz etkinliklerin başlıklarını oluşturduğumuz "Topic" sınıfında
+saklarken buna ek olarak bu etkinlikler hakkında notlar ve açıklamalar ekleyebileceğimiz "Entry" sınıfını
+oluşturacağız. "many-to-one-relationship" ilişkisel bağlantı olacağından yani bir Topic için birden fazla
+Entry atanabilecektir.
+
+    # learning_logs/models.py açıp kodu yazınız:
+
+    class Entry(models.Model):
+        """Topic ile alakalı öğrenilen girdiler"""
+        topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+        text = models.TextField()
+        date_added = models.DateTimeField(auto_now_add=True)
+
+        class Meta:
+            verbose_name_plural = 'entries'
+
+            def __str__(self):
+            """Entry'i temsil eden bir string yapısını geri döndürüyor"""
+            return f"{self.text[:50]}..."
+
+    # NOT: Entry altında topic = Topic Class'ına bağlanıyor ve on_delete=models.CASCADE komutu ile eğer
+            topic silinirse altındaki bütün entry girdileride beraberinde siliniyor
+         : text bölümünde direkt olarak kullanıcıdan girdi alacağız ve herhangi bir karakter sınırlaması
+            yapmıyoruz.
+         : Topic yapısında bulunan girdinin yaratılma zamanını kaydeden timestamp yapısını burada da
+            entegre ediyoruz
+         : Entry sınıfı içerisinde oluşturduğumuz Meta yapısı ile çoklu giriş sırasında Entries olur
+         : Son olarak __str__ metodu ile sadece 50 karaktere kadar özet görüntülemeyi sağlıyoruz
+
+-----------------------------                                   ----------------------------------
+
+    # 13.1) Şimdi modeli learning_logs/model.py da oluşturduğumuza göre sırada terminal üzerinden
+makemigrations ve migrate komutlarını çağırarak oluşturduğumuz yeni yapıyı projemize entegre ediyor
+0002_entry.py dosyasını oluştururak Entry Tablosunu burada tutuyor ve bu tabloyu veritabanına işliyoruz
+    # Terminali açıp komutu giriniz:
+
+    python manage.py makemigrations learning_logs
+    python manage.py migrate
+
+-----------------------------                                   ----------------------------------
+
+    # 13.2) Oluşturduğumuz Entry Modelimizi Superuser sayfasında kullanabilmek için aşağıdaki kodu
+learning_logs/admin.py da yazıyoruz:
+    # learning_logs/admin.py dosyasını açarak gerekli düzenlemeleri yapıyoruz:
+
+    from django.contrib import admin
+    from .models import Topic, Entry
+
+    admin.site.register(Topic)
+    admin.site.register(Entry)
+
+-----------------------------                                   ----------------------------------
+
+    # 13.3) Terminalden "python manage.py runserver" ile server'ı çalıştırıp admin sayfasında Entry
+değerlerimizi artık güncelleyebilir ve düzenleyebiliriz.
+
+    # Entry Bölünden Add Entry diyerek Topic olarak Chess'i seçtikten sonra ilk entry olarak:
+
+    The opening is the first part of the game, roughly the first ten moves or so.
+    In the opening, it’s a good idea to do three things— bring out your bishops and
+    knights, try to control the center of the board, and castle your king.
+
+    Of course, these are just guidelines. It will be important to learn when to
+    follow these guidelines and when to disregard these suggestions.
+
+    # Ardından Chess için yeni bir Entry daha ekleyebiliriz:
+
+    In the opening phase of the game, it’s important to bring out your bishops
+    and knights. These pieces are powerful and maneu- verable enough to play a
+    significant role in the beginning moves of a game.
+
+    # Son olarak Rock Climbing Topic'i içinde bir Entry yapabiliriz:
+
+    One of the most important concepts in climbing is to keep your weight on your
+    feet as much as possible. There’s a myth that climbers can hang all day on
+    their arms. In reality, good climb- ers have practiced specific ways of keeping
+    their weight over their feet whenever possible.
+
+--------------------------------------------------------------------------------------------------
+    # 14) Bu aşama OPSİYONELDİR be DJANGO SHELL hakkında kısa bir özellikten bahsedilecektir.
+Uygulamamızda oluşturduğumuz veritabanımız içerisinde yer alan verilere Django Shell üzerinden
+rahatlıkla erişebilir ve herhangi bir hata aldığımızda buradan kısayoldan kontrollerimizi
+sağlayabiliriz.
+    # Teminali açıp komutu giriniz:
+
+    python manage.py shell                      # -> Django Shell 'e erişim sağlanıyor.
+    from learning_logs.models import Topic      # -> Projemizden Topic modelini çekiyor.
+    Topic.objects.all()                         # -> <QuerySet [<Topic: Chess>, <Topic: Rock Climbing>]>
+
+    topics = Topic.objects.all()                # -> QuerySet i topics değerine atadık
+    for topic in topics:
+        print(topic.id, topic)                  # -> for...in ile içerisindeki değerleri çıkardık
+                                                # -> 1 Chess
+                                                     2 Rock Climbing
+
+    # NOT: Chess in ID si 1 ve Rock Climbing ID si 2 olarak atanmıştır. Eğer çekmek istediğimiz
+değerin ID sini biliyorsak:
+
+    t = Topic.objects.get(id=1)                 # -> t değerine id si 1 olan objecti atadık
+    t.text                                      # -> 'Chess'
+    t.date_added                                # -> 'datetime.datetime(2023, 8, 5, 18, 39, 22, 709937,
+                                                                            tzinfo=datetime.timezone.utc)'
+
+    # NOT: Django Shell den çıkış yapmak için KNTRL + Z kullanın.
+--------------------------------------------------------------------------------------------------
+    # 15) Bu aşamada Learning Logs Projemiz için ANASAYFA tasarlayacağız. Bunun için ilk aşamada
+oluşturduğumuz ll_project/urls.py dosyasını açmamız gerekiyor.
+    # ll_project/urls.py dosyasını açıyoruz ve kodu bu şekilde düzenliyoruz:
+
+    from django.contrib import admin
+    from django.urls import path, include
+
+    urlpatterns = [
+        path("admin/", admin.site.urls),                # -> URL uzantısı /admin ile sonlandığında açılan sayfa
+        path('', include('learning_logs.urls')),        # -> URL uzantısı sonu boş olduğunda yani anasayfa
+    ]
+
+-----------------------------                                   ----------------------------------
+
+    # 15.1) Default olarak gelen urls.py dosyası ll_project klasöründe yer alıyor. ll_project/urls.py da
+urlpattern listesine eklediğimiz kod bize URL nin yolunu veriyor. Yani 15. aşamada dosya yolunu belirlediğimiz
+url.py dosyasını learning_logs içerisinde sıfırdan oluşturmamız gerekiyor.
+    # learning_logs/urls.py dosyası oluşturuyor ve içerisine kodu ekliyoruz:
+
+    from django.urls import path                    # -> Djangodan url path i çekiyoruz
+    from . import views                             # -> Aynı dizindeki (.) views 'u çekiyoruz
+    app_name = 'learning_logs'                      # -> app_name'i ll olarak belirliyoruzki url dosyası karışmasın
+    urlpatterns = [                                 # -> path yapısından '' sayfa yolunu çekiyor ve bütün görüntüleri
+        path('', views.index, name='index'),                içeren views.py sayfasındaki index() fonksiyonunu çekiyoruz
+    ]                                                       name ile 'index' ismi tanımlıyoruzki daha sonra kolayca
+                                                            erişebilelim.
+
+--------------------------------------------------------------------------------------------------
+    # 16) Bu aşamada view.py dosyamızı yani görüntülemeyi sağlayan yapıyı oluşturacağız. view.py
+request (istek) yapısından bilgiyi çeker gerekli data (veri)yi hazırlar ve browser a gönderir.
+views.py oluşturulduğunda otomatik olarak "render" yapısının çekmiştir. render datayı işleyerek
+bize görüntüyü sağlar.
+    # learning_logs/views.py dosyasını açıp kodu ekliyoruz:
+
+    def index(request):
+        return render(request, 'learning_logs/index.html')
+
+    # NOT: 1.Proje klasöründe url'de path'i belirle
+           2.Uygulama klasöründe url.py dosyası oluştur, isimlendir ve view.py'dan istekte bulunacağı
+                fonksiyonun ismini ekleyeceğin yapıyı yaz
+           3.views.py dosyasında isteğe göre yansıtılacak html dosyasını çeken fonksiyonu yaz
+--------------------------------------------------------------------------------------------------
+    # 17) views.py içerisine yazdığımız index sayfasını bize yansıtan index() fonksiyonu
+learning_logs içerisinde oluşturacağımız "index.html" dosyasını bu aşamada yaratıyoruz.
+learning_logs klasörümüzün içerisinde "templates" adında bir klasör oluşturacağız.
+Bu templates dosyası html dosyalarımızı içeren klasör olacak bu yüzden birden fazla uygulamaya
+sahip olabileceğimiz ihtimaline karşın "learning_logs" adında bir klasör oluşturuyoruz template içinde
+ve learning_logs app imize ait "index.html" dosyasını burada oluşturuyoruz.
+
+    # learning_logs/templates/learning_logs/index.html dosyasını açıp html kodumuzu yazıyoruz:
+
+    <p>Learning Log</p>
+    <p>Learning Log helps you keep track of your learning, for any topic you're
+    interested in.</p>
+
+    # NOT: Burada tamamiyle FRONTEND bilginize göre HTML, CSS, Javascript ile oluşturacağınız
+            arayüzlere ihtiyacınız olacak. Biz bu projede olabildiğince sade arayüz kullanarak
+            django ya odaklanacağız.
+--------------------------------------------------------------------------------------------------
+    # 18) Bu aşamada base.html dosyasını oluşturacağız ki her seferinde belirli sayfa içeriklerini
+tekrar tekrar yazmaktansa base.html'i miras alarak diğer sayfalarda çağırıp kullanabiliriz.Şimdi
+index.html yanında "base.html" adında yeni dosyamızı oluşturacağız.
+
+    # learning_logs/templates/learning_logs/base.html dosyasını açıp html kodumuzu yazıyoruz:
+
+    <p>
+        <a href="{% url 'learning_logs:index' %}">Learning Log</a>
+    </p>
+    {% block content %}{% endblock content %}
+
+-----------------------------                                   ----------------------------------
+
+    # 18.1) Şimdi hazırladığımız base.html yapısından miras alması için index.html sayfasını tekrar
+düzenleyeceğiz.
+
+    # learning_logs/templates/learning_logs/index.html dosyasını açıp html kodumuzu yazıyoruz:
+
+    {% extends 'learning_logs/base.html' %}
+    {% block content %}
+    <p>Learning Log helps you keep track of your learning, for any topic you're interested in.</p>
+    {% endblock content %}
+
+    # NOT: tepede kullandığımız {%extend%} yapısı ile base.html dosyasında oluşturduğumuz Learning Log
+            highreferance içeren tıkladığımızda bizi anasayfaya yönlendiren linki çağırdık.
+            {%block%} ve {%endblock%} arasında sadece o sayfaya ait olacak değerleri yazıyoruz.
+
+--------------------------------------------------------------------------------------------------
+    # 19) Bu aşamada oluşturduğumuz Topicleri görüntüleyeceğimiz TOPICS sayfasını oluşturacağız.
+Bunun için sırasırla adımları takip ediyoruz:
+
+    # a) learning_logs/urls.py da yer alan urlpatterns listenizi güncelleyin;
+
+                urlpatterns = [
+                   path('', views.index, name='index'),
+                   path('topics/', views.topics, name='topics'), ]
+
+    # b) learning_logs/views.py dosyasını açıp fonksiyonu ekliyoruz:
+
+                from .models import Topic
+
+                def topics(request):
+                    topics = Topic.objects.order_by('date_added')
+                    context = {'topics': topics}
+                    return render(request, 'learning_logs/topics.html', context)
+
+                # NOT: Topic modelinden data çekeceğimiz için modeli çağırıyoruz
+                        Topic içerisindeki verileri date e göre sıralı çekiyoruz
+                        dictionary içine koyup oluşturacağımız html sayfası için
+                        render ediyoruz.
+
+    # c) Bu aşamada "topics.html" sayfasını oluşturup tasarlıyoruz:
+
+                 {% extends 'learning_logs/base.html' %}                #-> base.html'den miras
+
+                 {% block content %}
+                    <p>Topics</p>
+                    <ul>
+                        {% for topic in topics %}                       #-> for in loop başlattık
+                            <li>{{ topic.text }}</li>                   #-> topic yapısındaki text leri list olarak döndürdük
+                        {% empty %}                                     #-> empty tag i sayesinde eğer boş değer dönerse
+                            <li>No topics have been added yet.</li>             kullanıcıya yapılan bilgilendirme döndürülebilir
+                        {% endfor %}
+                    </ul>
+                 {% endblock content %}
+
+    # d) Son olarak oluşturduğumuz topics.html sayfasını "base.html" link olarak ekliyoruz:
+                <p>
+                    <a href="{% url 'learning_logs:index' %}">Learning Log</a>
+                    <a href="{% url 'learning_logs:topics' %}">Topics</a>
+                </p>
+                {% block content %}{% endblock content %}
+--------------------------------------------------------------------------------------------------
+    # 20) Bu aşamada Topic sayfasında yer alan her bir topic başlığı için görüntülenecek sayfaların
+tasarımı yapılacaktır. 19. aşamada yapılan işlemlerin benzerleri yapılacağından detaylı uzun
+açıklamalar eklenmeyecektir.
+
+    # a) urlpattern'e eklemeyi yapalım:
+            path('topics/<int:topic_id>/', views.topic, name='topic'),
+
+            # NOT: Burada önemli nokta topic içerisinde yer alan entryleri çekeceğimiz için
+                    <int:topic_id> eklemesi yaparak topicteki veriler. ID numarasına göre çekiliyor.
+
+    # b) learning_logs/view.py da fonksiyonumuzu ekliyoruz:
+
+            def topic(request, topic_id):
+            """Show a single topic and all its entries."""
+                topic = Topic.objects.get(id=topic_id)
+                entries = topic.entry_set.order_by('-date_added')
+                context = {'topic': topic, 'entries': entries}
+                return render(request, 'learning_logs/topic.html', context)
+
+    # c) topic.html dosyasını oluşturuyor ve tasarımı kodluyoruz:
+
+            {% extends 'learning_logs/base.html' %}
+
+            {% block content %}
+            <p>Topic: {{ topic.text }}</p>
+                <p>Entries:</p>
+            <ul>
+                {% for entry in entries %}
+                    <li>
+                        <p>{{ entry.date_added|date:'M d, Y H:i' }}</p>
+                        <p>{{ entry.text|linebreaks }}</p>
+                    </li>
+                {% empty %}
+                    <li>There are no entries for this topic yet.</li>
+                {% endfor %}
+            </ul>
+            {% endblock content %}
+
+    # d) Son olarak topic entrylerimize topics.html sayfasından erişeceğimiz için:
+
+            # <li>{{ topic.text }}</li> bölümü ile sadece liste halinde topic.text döndürülüyordu
+                bu bölümü referans içeren yapıya dönüştüreceğiz bu sayede alt topiclerimize tıklayıp
+                entry içeriğimizi görüntüleyebileceğiz.
+
+            <li>
+            <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic.text }}</a></li>
+            </li>
+
+--------------------------------------------------------------------------------------------------
+                             DJANGO KULLANICI İŞLEMLERİ OLUŞTURMA
+--------------------------------------------------------------------------------------------------
+    # 1) Bu bölümde Topic Ekleyebilme özelliğini aktif hale getireceğiz. Fakat önce bunun için yeni
+bir model sayfası oluşturmalıyız:
+    # learning_logs içerisine "forms.py" dosyasını oluşturuyoruz ve sınıfı tanımlıyoruz:
+
+        from django import forms
+        from .models import Topic
+
+        class TopicForm(forms.ModelForm):
+
+            class Meta:
+                model = Topic
+                fields = ['text']
+                labels = {'text': ''}
+
+    # 1.1) Yeni sayfanın URL'sini tanımlayacağız:
+        # learning_logs/urls.py dosyasını açıınız ve urlpattern'e ekleme yapınız:
+
+            path('new_topic/', views.new_topic, name='new_topic'),
+
+    # 1.2) urls.py da yapılan isteğe karşı views.py da çalıştırılacak new_topic() fonksiyonunu
+    yazmalıyız:
+        # learning_logs/views.py dosyasını açınız ve kodu yazınız:
+
+        from .forms import TopicForm
+
+        def new_topic(request):
+            if request.method != 'POST':
+                form = TopicForm()
+            else:
+                form = TopicForm(data=request.POST)
+                if form.is_valid():
+                    form.save()
+                    return redirect('learning_logs:topics')
+            context = {'form': form}
+            return render(request, 'learning_logs/new_topic.html', context)
+
+        # NOT: Yukarıda iki farklı request yapısı bulunuyor en üstte GET yapısı daha sonra ise
+            POST yapısı durumunda yapılacakları yazıyoruz
+            GET: TopicForm() boş değerleri sadece çekilip form değişkenine atanıyor.
+            POST: Kullanıcının girdiği data ile birlikte TopicForm() yapısı form değişkenine atanıyor.
+                    ardından. is_valid() yapısı ile uygunluk kontrol ediliyor. Herşey uygun ise
+                    save() yapısı ile data kaydediliyor. redirect() yapısı ile kullanıcı işlemi tamam-
+                    ladıktan sonra "topics" sayfasına yönlendiriliyor.
+            En son new_topic.html sayfasında render edeceğimiz context değerine atama yapıyoruz.
+            Context i if yapısı dışına koymamızın sebebi eğer boş bir girdi yada invalid girdi olursa
+            sayfanın yinede oluşturulup kullanıcıya bilgi verilmesi amacıyla...
+
+    # 1.3) Sıradaki işlemimiz "new_topic.html" dosyasını oluşturmak ve sayfa tasarımımızı yapmak:
+
+        {% extends "learning_logs/base.html" %}
+        {% block content %}
+            <p>Add a new topic:</p>
+            <form action="{% url 'learning_logs:new_topic' %}" method='post'>
+                {% csrf_token %}
+                {{ form.as_div }}
+                <button name="submit">Add topic</button>
+            </form>
+        {% endblock content %}
+
+        # NOT: <form action> yapısı 'post' olarak belirtildiğinden kullanıcıdan girdi alınacak
+            {% csrf_token %} yapısı (cross-site request forgery.) siteden yetkisiz bir bilgi çalma
+            denemesini engellemek için DJANGO tarafından tasarlanmıştır.
+            {{ form.as_div }} Djangonun sayfayı düzgün görüntülemesi için bir yapı
+            En son bir Submit butonu yerleştiriyoruz.
+
+    # 1.4) Bütün işlemleri bitirdiğimize göre sırada new_topic sayfamızı görüntülemek için topics.html
+    sayfamıza gerekli referansı yerleştirmeliyizki new_topic sayfasına erişebilelim:
+        # topics.html sayfasını açıp referansımızı sayfamızın alt kısmına ekliyoruz:
+
+        <a href="{% url 'learning_logs:new_topic' %}">Add a new topic</a>
+--------------------------------------------------------------------------------------------------
+    # 2) Kullanıcıya topic eklemesi için takip ettiğimiz 1 numaralı süreçteki aynı işlemlerin
+benzerlerini entry girişi içinde tekrarlayacağız. Bu yüzden ilk yapacağımız işlem sınıfı oluşturmak.
+    # learning_logs/forms.py dosyasını açıyoruz:
+
+    from .models import Topic, Entry                        # -> model sayfasından Entry sınıfı çekiyoruz
+
+    class EntryForm(forms.ModelForm):
+        class Meta:
+            model = Entry
+            fields = ['text']
+            labels = {'text': ''}
+            widgets = {'text': forms.Textarea(attrs={'cols': 80})}
+
+    # 2.1) Yeni sayfanın URL sini tanımlayacağız.
+        # learning_logs/url.py dosyasını açıp yolu urlpattern'e ekleyelim:
+
+        path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
+
+    # 2.2) urls.py da yapılan isteğe karşı views.py da çalıştırılacak new_entry() fonksiyonunu
+    yazmalıyız.
+        # learning_logs/view.py dosyayı açıp kodu ekleyelim:
+
+        from django.shortcuts import render, redirect
+        from .forms import TopicForm, EntryForm
+
+        def new_entry(request, topic_id):
+             topic = Topic.objects.get(id=topic_id)
+
+             if request.method != 'POST':
+                form = EntryForm()
+             else:
+                form = EntryForm(data=request.POST)
+                if form.is_valid():
+                    new_entry = form.save(commit=False)
+                    new_entry.topic = topic
+                    new_entry.save()
+                    return redirect('learning_logs:topic', topic_id=topic_id)
+
+             context = {'topic': topic, 'form': form}
+             return render(request, 'learning_logs/new_entry.html', context)
+
+    # 2.3) Sıradaki işlemimiz "new_entry.html" dosyasını oluşturmak ve sayfa tasarımımızı yapmak:
+
+        {% extends "learning_logs/base.html" %}
+        {% block content %}
+            <p><a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a></p>
+            <p>Add a new entry:</p>
+                <form action="{% url 'learning_logs:new_entry' topic.id %}" method='post'>
+                    {% csrf_token %}
+                    {{ form.as_div }}
+                    <button name='submit'>Add entry</button>
+                </form>
+        {% endblock content %}
+
+    # 2.4) Bütün işlemleri bitirdiğimize göre sırada new_entry sayfamızı görüntülemek için topics.html
+    sayfamıza gerekli referansı yerleştirmeliyizki new_entry sayfasına erişebilelim:
+        # topics.html sayfasını açıp referansımızı sayfamızın alt kısmına ekliyoruz:
+
+        <p>
+            <a href="{% url 'learning_logs:new_entry' topic.id %}">Add new entry</a>
+        </p>
+
+    # 2.5) Son olarak denemek için Chess Topici için yeni bir Entry girmeyi deneyelim Server
+başlatılmadıysa önce Terminalden "python manage.py runserver" komutu ile server'ı başlatalım:
+
+    # Add a New Entry:
+        "The bishops and knight are good pieces to have out in the opening phase of the game.
+        They are both powerful enough to be useful to attacking your opponent, but not so
+        powerful you can't afford to lose them in an early trade"
+
+--------------------------------------------------------------------------------------------------
+    # 3) Bu aşamada Entryleri editleyebilme özelliğini aktif hale getireceğiz ve yine aynı aşamaları
+hızlı bir şekilde tekrarlayacağız.
+
+    # 3.1) learning_logs/urls.py dosyasında urlpattern'e eklemeyi yapıyoruz:
+
+        path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
+
+
+    # 3.2) learning_logs/views.py dosyasında gerekli fonksiyonu ekliyoruz:
+
+        from .models import Topic, Entry
+
+        def edit_entry(request, entry_id):
+            entry = Entry.objects.get(id=entry_id)
+            topic = entry.topic
+            if request.method != 'POST':
+                form = EntryForm(instance=entry)
+            else:
+                form = EntryForm(instance=entry, data=request.POST)
+                if form.is_valid():
+                    form.save()
+                    return redirect('learning_logs:topic', topic_id=topic.id)
+        context = {'entry': entry, 'topic': topic, 'form': form}
+        return render(request, 'learning_logs/edit_entry.html', context)
+
+    # 3.3) Template klasörümüzde yeni edit_entry.html sayfasını oluştur ve kodluyoruz:
+
+        {% extends "learning_logs/base.html" %}
+        {% block content %}
+            <p><a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a></p>
+            <p>Edit entry:</p>
+                <form action="{% url 'learning_logs:edit_entry' entry.id %}" method='post'>
+                    {% csrf_token %}
+                    {{ form.as_div }}
+                    <button name="submit">Save changes</button>
+                </form>
+        {% endblock content %}
+
+    # 3.4) Son olarak edit_entry sayfamızı topic sayfasında entrylerin altına ekleyebiliriz:
+
+        <p><a href="{% url 'learning_logs:edit_entry' entry.id %}">Edit entry</a></p>
+
+--------------------------------------------------------------------------------------------------
+                                 DJANGO KULLANICI OLUŞTURMA
+--------------------------------------------------------------------------------------------------
+
+    # 1) Kullanıcı hesabı oluşturma, giriş/çıkış gibi özellikler Django içerisinde Built-in olarak
+bulunmaktadır. Bunu Learning Logs Uygulamamızın yanında yeni bir uygulama olarak oluşturup entegre
+edeceğiz. Bu yüzden de Terminali kullanarak "accounts" adında yeni bir uygulama başlatacağız:
+    # Terminali açıp komutu giriniz:
+
+    python manage.py startapp accounts
+--------------------------------------------------------------------------------------------------
+    # 2) İlk uygulama oluştururken yaptığımız gibi yeni uygulamamızı settings.py INSTALLED_APPS
+listesine ekliyoruz ki aktif hale getirebilelim:
+    # ll_project/settings.py dosyasını açıyoruz ve "accounts", ibaresini ekliyoruz:
+
+    INSTALLED_APPS = [  "learning_logs",
+                        "accounts", ]
+--------------------------------------------------------------------------------------------------
+    # 3) Yeni uygulamanın dosya yolunu bulabilmesi adına urls.py dosyasında urlpatterns listesine
+yeni uygulamamızın urlpath'ini ekliyoruz:
+    # ll_project/urls.py dosyasını açıyoruz ve eklemeyi yapıyoruz:
+
+    urlpatterns = [
+    path("admin/", admin.site.urls),
+    path('accounts/', include('accounts.urls')),
+    path('', include('learning_logs.urls')),
+]
+--------------------------------------------------------------------------------------------------
+    # 4) Uygulamamızın başlangıç ayarlarını tamamladık şimdi ilk sayfamız olan LOGIN sayfasını
+oluşturmaya geçeceğiz. accounts klasörümüzün içerisine yeni urls.py dosyasını oluşturuyoruz.
+    # accounts/urls.py dosyasını açıyor ve kodluyoruz:
+
+    from django.urls import path, include
+
+    app_name = 'accounts'
+    urlpatterns = [
+        path('', include('django.contrib.auth.urls')),
+    ]
+
+    # NOT: DJANGONUN Kendisinde gelen login sayfasını ve fonksiyonunu kullandığımız için ayrıca
+    bir fonksiyon tanımlamasına gitmemize gerek kalmıyor. Sadece Default yapıyı kullanabilmek adına
+    django acoounts klasörümüz içerisinde "templates/registration" klasörü içerisinde "login.html"
+    dosyalarını arıyor. Diğer adıma geçmeden bu dosyaları oluşturmalıyız.
+--------------------------------------------------------------------------------------------------
+    # 5) Gerekli dosya yollarını hazırladığımıza göre şimdi login.html dosyamızda kodlamayı yaparak
+sayfa tasarımımızı gerçekleştirebiliriz:
+
+    {% extends 'learning_logs/base.html' %}
+    {% block content %}
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        <form action="{% url 'accounts:login' %}" method='post'>
+            {% csrf_token %}
+            {{ form.as_div }}
+            <button name="submit">Log in</button>
+        </form>
+    {% endblock content %}
+
+-----------------------------                                   ----------------------------------
+
+    # 5.1) Burada önemli bir nokta olan kullanıcı Login işlemini gerçekleştirdikten sonra django ya
+kullanıcının hangi sayfaya oto olarak yönlendirilmesini belirtmemiz gerekiyor. Bunun için settings.py
+dosyasına bir ekleme yapmamız gerekecek.
+    # ll_project/settings.py dosyasını açıyoruz ve sayfa sonuna eklememizi yapıyoruz :
+
+    LOGIN_REDIRECT_URL = 'learning_logs:index'
+
+    # NOT: Görüldüğü üzere bu kod ile kullanıcıyı index sayfasına yani anasayfaya yönlendiriyoruz.
+
+--------------------------------------------------------------------------------------------------
+    # 6) Login Sayfamızın tasarımından fonksiyonuna herşeyi tamamladık fakat sayfamızı görüntülemek
+için base.html dosyası üzerinde bir kaç ekleme yapmamız gerekecek.
+    # learning_logs/templates/learning_logs/base.html dosyasını açıyoruz:
+
+    <a href="{% url 'learning_logs:topics' %}">Topics</a> -
+    {% if user.is_authenticated %}
+            Hello, {{ user.username }}.
+    {% else %}
+            <a href="{% url 'accounts:login' %}">Log in</a>
+    {% endif %}
+
+    # NOT: Yukarıda kullanıcı giriş yapmışsa Hello Kullanıcı Adı gözüküyor aksi takdirde Log in
+    ibaresi aktif hale geliyor.
+--------------------------------------------------------------------------------------------------
+    # 7) Bu adımda Logout özelliğini ekleyeceğiz. Login özelliğinde olduğu gibi Logout seçeneğini
+bütün sayfalarda görüntüleyebilmek adına her yerde miras olarak kullandığımız "base.html" sayfasında
+tanımlama işlemini gerçekleştirmeliyiz.
+    # learning_logs/base.html sayfasını açıyoruz ve eklemeyi sayfanın en altına yapıyoruz:
+
+    {% if user.is_authenticated %}
+        <hr />
+        <form action="{% url 'accounts:logout' %}" method='post'>
+            {% csrf_token %}
+            <button name='submit'>Log out</button>
+        </form>
+    {% endif %}
+
+    # NOT: Kullanıcı sadece yetkilendirildiği koşulda logout seçeneği gözükecektir. Yani login olduysa.
+
+-----------------------------                                   ----------------------------------
+
+    # 7.1) Burada önemli bir nokta olan kullanıcı Logout işlemini gerçekleştirdikten sonra django ya
+kullanıcının hangi sayfaya oto olarak yönlendirilmesini belirtmemiz gerekiyor. Bunun için settings.py
+dosyasına bir ekleme yapmamız gerekecek.
+    # ll_project/settings.py dosyasını açıyoruz ve sayfa sonuna eklememizi yapıyoruz :
+
+        LOGOUT_REDIRECT_URL = 'learning_logs:index'
+
+--------------------------------------------------------------------------------------------------
+
+    # 8) Kullanıcı Login ve Logout işlemlerini ve sayfalarını başarılı bir şekilde oluşturduğumuza
+göre son olarak kullanıcı kayıt işlemini gerçekleştirmeliyiz ki yeni kullanıcılar sayfamıza dahil
+olsun. Registration işlemi için yine Django ile hazır gelen fonksiyonları ve templateleri kullanacağız.
+    # accounts/url.py dosyasını açıyoruz ve kodumuzu urlpattern'e ekliyoruz:
+
+    from . import views                                     # -> views çekiyoruz çünkü register() yazacağız
+
+    path('register/', views.register, name='register'),
+
+-----------------------------                                   ----------------------------------
+
+    # 8.1) Öncelikle views.py dosyamız içerisine register() fonksiyonumuzu tanımlayacağız ki kullanıcı
+kayıt işlemleri sırasında yapılacak işlemleri burada detaylandırabilelim.
+    # accounts/views.py dosyasını açıyoruz ve kodluyoruz:
+
+    from django.shortcuts import render, redirect
+    from django.contrib.auth import login
+    from django.contrib.auth.forms import UserCreationForm
+
+    def register(request):
+
+    if request.method != 'POST':
+        form = UserCreationForm()
+    else:
+        form = UserCreationForm(data=request.POST)
+        if form.is_valid():
+            new_user = form.save()
+            login(request, new_user)
+            return redirect('learning_logs:index')
+    context = {'form': form}
+    return render(request, 'registration/register.html', context)
+
+    # NOT: Öncelikle if yapısının ilk aşamasında Django içerisinde yer alan hazır kayıt formunu çekiyoruz.
+        Ardından kullanıcının girdilerini UserCreationForm yapısına aktarıyoruz ve diğer if yapısı içerisinde
+        formun geçerliliğini kontrol ediyoruz. (Password uyumluluğu yabancı harf uyumluluğu vs.) Eğer uygunluk
+        tamamsa form.save() ile yeni kullanıcıyı oluşturuyoruz. Ardından login işlemini başlatıp kullanıcıyı
+        anasayfaya yönlendiriyoruz.
+
+-----------------------------                                   ----------------------------------
+
+    # 8.2) Sırada fonksiyonu oluşturduğumuza göre yeni template yani html dosyamızı oluşturmaya geldi.
+"register.html" adında dosyamızı oluşturuyoruz.
+    # accounts/templates/accounts/register.html dosyasını açıyor ve kodluyoruz:
+
+    {% extends "learning_logs/base.html" %}
+    {% block content %}
+        <form action="{% url 'accounts:register' %}" method='post'>
+            {% csrf_token %}
+            {{ form.as_div }}
+            <button name="submit">Register</button>
+        </form>
+    {% endblock content %}
+
+-----------------------------                                   ----------------------------------
+
+    # 8.3) register.html dosyamızı tasarladığımıza göre sayfamıza ulaşılabilmesi için base.html içerisine
+sayfamızın bir bağlantısını bırakmalıyız.
+    # learning_logs/templates/learning_logs/base.html dosyamızı açıp ekliyoruz:
+
+    <a href="{% url 'accounts:register' %}">Register</a> -
+
+    # NOT: Eğer kullanıcı giriş yapmamışsa register bağlantısı gözükeceği için else yapısı içinde
+        login bağlantısının hemen yanına yerleştiriyoruz.
+
+--------------------------------------------------------------------------------------------------
+    # 9) Projemizim bu aşamasında açılan her kullanıcının kendisine ait verilerine erişip düzen-
+leyebilmesini sağlayacağız. Ayrıca bu durumda her kullanıcının görüntüleyebileceği belli başlı
+sayfalar olacağından bazı kısıtlamalarıda ekleyeceğiz. İlk olarak kullanıcının veri görüntülemesi
+için Login olma zorunluluğunu sağlayacağız.
+    # learning_logs/views.py dosyasını açıyoruz ve eklemeleri yapıyoruz:
+
+    from django.contrib.auth.decorators import login_required
+
+    @login_required
+
+    # NOT: Öncelikle djangodan dekoratör'den login zorunluluğu yapısını çekiyoruz bu sayede
+        python @login_required ibaresini gördüğü her alanda login zorunluluğu arayacaktır.
+
+-----------------------------                                   ----------------------------------
+
+    # 9.1) login dekoratörünün çalışması için settings.py dosyamız içerisinde Login sayfamızı
+belirteceğiz ki Django zorunluluk durumunda login sayfasına yönlendirmeyi yapabilsin.
+    # ll_project/settings.py dosyasını açıyoruz:
+
+    LOGIN_URL = 'accounts:login'
+--------------------------------------------------------------------------------------------------
+    # 10) Login olmayan kullanıcıların erişemeyeceği sayfaları belirtmek adına düzenlemeyi yapacağız.
+Learning Log içerisinde AnaSayfa ve KayıtSayfası dışındaki bütün sayfalara erişim kısıtlaması koyacağız.
+    # learnin_logs/views.py dosyasını açıyor ve düzenlemeleri yapıyoruz:
+
+    @login_required
+
+    # NOT: index() dışındaki bütün fonksiyonların başlangıcına "@login_required" yapısını ekliyoruz.
+--------------------------------------------------------------------------------------------------
+    # 11) Son olarak Kullanıcılar ve Topicler arasında bağlantıyı sağlayacağız. Burada Topic'in
+seçilme sebebi veritabanımızda en üstte yer alan kapsayıcı değerimiz olduğu içindir, yani bütün alt topic
+ve entrylerin tamamı bir ana topic'e ait. Dolayısıyla bu ana başlıklar ile kullanıcı arasındaki bağlantıyı
+sapladığımızda bu işlemi tamamlamış sayılırız.Burada da djangonun User yapısını kullanarak bu işlemi kolay-
+lıkla sağlayabiliriz.
+    # learning_logs/models.py dosyamızı açıyoruz:
+
+    from django.contrib.auth.models import User
+
+    class Topic(models.Model):
+               Text = models.CharField(max_length=200)
+               date_added = models.DateTimeField(auto_now_add=True)
+               owner = models.ForeignKey(User, on_delete=models.CASCADE)    # -> sahip ekledik
+
+    # NOT: Djangodan User modeli çağırdık. Topic Sınıfımız içerisinde owner adında yeni bir alan oluşturduk.
+        ve model ile User arasında ForeignKey ilişkisi kurduk. on_delete ile Kullanıcı silinirse bütün datanın
+        silinmesini sağladık.
+
+-----------------------------                                   ----------------------------------
+
+    # 11.1) Bu aşamadan sonra veritabanımızda bulunan verileri mecburen bir kullanıcıya bağlamak zorundayız.
+Aktarımı sağlamak adına bütün verilerimizi tek kullanıcımız olan en başta oluşturduğumuz ll_admin kullanıcısına
+aktarabiliriz. Ama bunun için önce ll_admin veya varsa diğer kullanıcılarımızın ID Numarasını sorgulamalıyız.
+Django Shell e bağlanarak bu işlemi kolaylıkla yapabiliriz.
+    # Terminali açıyoruz (server aktif ise kntrl+c ile çıkış yapmayı unutmayınız):
+
+    python manage.py shell                              # -> Shell e bağlandık
+
+    from django.contrib.auth.models import User         # -> Kullanıcıları çektik
+    User.objects.all()                                  # -> Kullanıcıları Query Set içinde çıktılayacaktır
+
+    for user in User.objects.all():                     # -> for loop ile kullanıcı adı ve id sini çıktılıyoruz
+        print(user.username, user.id)                   # -> ll_admin 1
+
+
+-----------------------------                                   ----------------------------------
+
+    python manage.py makemigrations learning_logs
+
+    # NOT: Please select a fix:
+    #1) Provide a one-off default now (will be set on all existing rows with a null value for this column)
+    #2) Quit and manually define a default value in models.py.
+    #Lütfen burada bir default tanımlamak için 1. seçeneği seçelim.
+
+    1
+
+-----------------------------                                   ----------------------------------
+
+    # NOT: Please enter the default value as valid Python.
+    #Lütfen burada default value değerimizi 1 olarak girelim ll_admin.id ->  1
+
+    1
+
+-----------------------------                                   ----------------------------------
+
+    # NOT: Bu işlemin ardından learning_logs/migrations/0003_topic_owner.py dosyasının oluşturulduğunu
+    #göreceksiniz.Şimdi sırada bu makemigration işlemini migrate ile onaylamaya geldi.
+
+    python manage.py migrate
+
+-----------------------------                                   ----------------------------------
+
+    # NOT: En son işlemin doğruluğunu teyit etmek için terminal üzerinden yazacağımız komutlar ile
+        topic ve topic_owner kontrolü yapabiliriz. (kntrl+z ile shellden çıkış yaptıysanız tekrardan
+        python manage.py shell komutunu kullanarak giriş yapmamız gerekir)
+
+    from learning_logs.models import Topic
+
+    for topic in Topic.objects.all():
+        print(topic, topic.owner)
+--------------------------------------------------------------------------------------------------
+    # 12) Şu an giriş yaptığınız anda bütün topicleri görüntülüyor olacaksınız ki bu istediğimiz
+bir durum değil. Hali hazırdaki Topicleri bir kullanıcıya tanımladık, şimdi sırada sadece topicleri
+sahiplerine göre görüntüleme sistemini oluşturmamız kaldı.
+    # learning_logs/views.py dosyasını açıyoruz:
+
+    @login_required
+    def topics(request):
+      topics = Topic.objects.filter(owner=request.user).order_by('date_added')
+      context = {'topics': topics}
+      return render(request, 'learning_logs/topics.html', context)
+
+    # NOT: topics() fonksiyonumuz kullanıcı giriş yaptığında topic objeleri içerisinde filtreleme
+        yaparak sadece kullanıcıya ait olanları çekip, eklendiği tarihe göre sıralayarak çıktı verecek.
+        Deneme için yeni bir kullanıcı kaydı oluşturup onunla giriş yaptıktan sonra Topics bağlantısına
+        tıklarsanız "No topics have been added yet" uyarısını görebilirsiniz.
+--------------------------------------------------------------------------------------------------
+    # 13) Kritik bir nokta olan bu bölümde URL barına "http://127.0.0.1:8000/topics/1/" şeklinde
+yazdığınızda direkt olarak ll_admin kullanıcısının bilgilerine eriştiğinizi görebilirsiniz. Bunu
+engellemek için django HTTP404 ü çağırarak views.py dosyamızda güncelleme yapmamız gerekecek.
+    # learning_logs/views.py dosyamızı açıyoruz:
+
+    from django.http import Http404
+
+    def topic(request, topic_id):
+      topic = Topic.objects.get(id=topic_id)
+      if topic.owner != request.user:                   # -> İstek yapan kullanıcı, topic owner değilse
+            raise Http404                                       404 uyarısı alacaktır.
+
+      entries = topic.entry_set.order_by('-date_added')
+      context = {'topic': topic, 'entries': entries}
+      return render(request, 'learning_logs/topic.html', context)
+
+    # 13.1) Aynı işlemi gerekli diğer sayfalar içinde tekrarlamalıyız. edit_entry() fonksiyonunada
+aynı düzenlemeyi yapmalıyız:
+    # learning_logs/views.py dosyamızı açıyoruz:
+    def edit_entry(request, entry_id):
+        entry = Entry.objects.get(id=entry_id)
+        topic = entry.topic
+        if topic.owner != request.user:
+            raise Http404
+--------------------------------------------------------------------------------------------------
+    # 14) Bu aşamada sonuncu adımımıza geldik. Yeni oluşturulan kullanıcımızın yeni bir topic eklemeye
+çalıştığında hata aldığını göreceğiz. Çünkü new_topic() fonksiyonumuzda bir owner ataması yapmadığımız
+için boş kalan owner field'ı için Django hata verecektir.
+    # learning_logs/views.py dosyamızı açıyoruz:
+
+    def new_topic(request):
+    ...
+    ..
+    else:
+        form = TopicForm(data=request.POST)
+        if form.is_valid():
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
+            return redirect('learning_logs:topics'
+--------------------------------------------------------------------------------------------------
+                               BOOTSTRAP İLE TASARIMI GELİŞTİRME
+--------------------------------------------------------------------------------------------------
+    # 1) Learning Log projemi fonksiyonel olarak artık çalışmaktadır. Fakat arayüzümü son derece
+sade bir şekilde kalmıştır. Projemizin bu kısmında Bootstrap5 kütüphanesini kullanarak uygulamamızın
+dizaynına yönelik geliştirmeler yapacağız. Bunun için öncelikle django bootstrap5 kütüphanesini
+yüklememiz gerekiyor.
+    # Terminali açıp komutu giriyoruz:
+
+    pip install django-bootstrap5
+
+-----------------------------                                   ----------------------------------
+
+    # 1.1) Daha önceki aşamalarda da belirttiğimiz gibi Djangoda projeye dahil edilen her yeni işlem
+mutlaka kullanılmak için settings.py dosyası içerisinde INSTALLEDAPPS içerisine dahil edilmeli.
+    # ll_project/settings.py dosyamızı açıyoruz:
+
+    INSTALLED_APPS = [
+        "learning_logs",
+        "accounts",
+        'django_bootstrap5',
+    ...]
+--------------------------------------------------------------------------------------------------
+    # 2) https://getbootstrap.com linkine tıklayarak Örnekleri inceleyebilir ve dilediğimiz, bizim
+için uygun olan tasarım parçalarını projemize entegre edebiliriz. Biz projemizin bu kısmında
+NAVBAR STATIC template i uygulayacağız. Şimdi "base.html" dosyamızdaki bütün tasarımı silmemiz
+gerekiyor.
+    # learning_logs/templates/learning_logs/base.html dosyasını açıyoruz:
+
+    # NOT: Yapılan kodlamalar fazlasıyla uzun olduğu için direk olarak sayfaya giderek HTML bilginizle
+     kendi yaptığımız değişiklikleri direk incelemek çok daha verimli olacaktır. Çünkü sayfa tasarımı
+     bölümü tamamiyle sizin HTML bilginize bağlı bir süreçtir. Eski yaptığımız basit HTML kodlamaları
+     "HTML Comment Line" olarak düzenledik. Ve kodlamaların:
+            {% block content %} {% endblock content %} {% extends 'learning_logs/base.html' %}
+     python tarafından tekrardan işleme alınmaması için "%" işaretleri çıkarılmıştır.
+--------------------------------------------------------------------------------------------------
+    # 3) Bu aşamada Jumbotron template i kullanarak sayfamıza yeni bir tasarım dahil edeceğiz.
+    # learning_logs/templates/learning_logs/index.html dosyasını açıyoruz:
+
+    {% extends 'learning_logs/base.html' %}
+
+    {% block page_header %}
+      <div class="p-3 mb-4 bg-light border rounded-3">
+        <div class="container-fluid py-4">
+          <h1 class="display-3">Track your learning.</h1>
+
+          <p class="lead">Make your own Learning Log, and keep a list of the
+          topics you're learning about. Whenever you learn something new
+          about a topic, make an entry summarizing what you've learned.</p>
+
+          <a class="btn btn-primary btn-lg mt-1"
+              href="{% url 'accounts:register' %}">Register &raquo;</a>
+        </div>
+      </div>
+    {% endblock page_header %}
+--------------------------------------------------------------------------------------------------
+    # 4) Bu aşamada Login sayfasına yeni bir tasarım dahil edeceğiz.
+    # accounts/templates/registration/login.html dosyasını açıyoruz:
+
+    {% extends 'learning_logs/base.html' %}
+    {% load django_bootstrap5 %}
+
+    {% block page_header %}
+      <h2>Log in to your account.</h2>
+    {% endblock page_header %}
+
+    {% block content %}
+
+      <form action="{% url 'accounts:login' %}" method='post'>
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_button button_type="submit" content="Log in" %}
+      </form>
+
+    {% endblock content %}
+--------------------------------------------------------------------------------------------------
+    # 5) Bu aşamada Topics sayfasına yeni bir tasarım dahil edeceğiz.
+    # learning_logs/templates/learning_logs/topics.html dosyasını açıyoruz:
+
+    {% extends 'learning_logs/base.html' %}
+
+    {% block page_header %}
+      <h1>Topics</h1>
+    {% endblock page_header %}
+
+    {% block content %}
+
+      <ul class="list-group border-bottom pb-2 mb-4">
+        {% for topic in topics %}
+          <li class="list-group-item border-0">
+            <a href="{% url 'learning_logs:topic' topic.id %}">
+              {{ topic.text }}</a>
+          </li>
+        {% empty %}
+          <li class="list-group-item border-0">No topics have been added yet.</li>
+        {% endfor %}
+      </ul>
+
+      <a href="{% url 'learning_logs:new_topic' %}">Add a new topic</a>
+
+    {% endblock content %}
+
+--------------------------------------------------------------------------------------------------
+    # 5) Bu aşamada Topic sayfasına yeni bir tasarım dahil edeceğiz.
+    # learning_logs/templates/learning_logs/topic.html dosyasını açıyoruz:
+
+    {% extends 'learning_logs/base.html' %}
+
+    {% block page_header %}
+      <h1>{{ topic.text }}</h1>
+    {% endblock page_header %}
+
+    {% block content %}
+
+      <p>
+        <a href="{% url 'learning_logs:new_entry' topic.id %}">Add new entry</a>
+      </p>
+
+      {% for entry in entries %}
+        <div class="card mb-3">
+          <!-- Card header with timestamp and edit link -->
+          <h4 class="card-header">
+            {{ entry.date_added|date:'M d, Y H:i' }}
+            <small><a href="{% url 'learning_logs:edit_entry' entry.id %}">
+              edit entry</a></small>
+          </h4>
+          <!-- Card body with entry text -->
+          <div class="card-body">{{ entry.text|linebreaks }}</div>
+        </div>
+      {% empty %}
+        <p>There are no entries for this topic yet.</p>
+      {% endfor %}
+
+    {% endblock content %}
+

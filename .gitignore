@@ -1,0 +1,5 @@
+.DS_Store
+db.sqlite3
+learning_logs/__pycache__/
+ll_project/__pycache__/
+accounts/__pycache__/
